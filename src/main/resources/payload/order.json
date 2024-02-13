@@ -1,0 +1,13 @@
+{
+  "id" : 1,
+  "user" : {
+    "id" : 1
+  },
+  "security" : {
+    "id" : 1
+  },
+  "type" : "A",
+  "price" : 100.0,
+  "quantity" : 100,
+  "fulfilled" : false
+}
