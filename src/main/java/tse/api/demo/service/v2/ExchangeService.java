@@ -17,11 +17,17 @@ import tse.api.demo.repository.OrderRepository;
 import tse.api.demo.repository.SecurityRepository;
 import tse.api.demo.repository.TradeRepository;
 import tse.api.demo.repository.UserRepository;
+import tse.api.demo.service.interfaces.OrderRestService;
+import tse.api.demo.service.interfaces.SecurityRestService;
+import tse.api.demo.service.interfaces.TradeRestService;
+import tse.api.demo.service.interfaces.UserRestService;
 import tse.api.demo.utils.TestContext;
+
+import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_BUY;
 
 @Service
 @ComponentScan(basePackages = {"tse.api.demo"})
-public class ExchangeService {
+public class ExchangeService implements SecurityRestService, UserRestService, OrderRestService, TradeRestService {
     private static final Logger log = LoggerFactory.getLogger(ExchangeService.class);
     private final UserRepository userRepository;
     private final SecurityRepository securityRepository;
@@ -45,38 +51,70 @@ public class ExchangeService {
         this.context = context;
     }
 
+    @Override
     public User createUser(User user) {
-        User savedUser = userRepository.save(user);
-        return savedUser;
+        return userRepository.save(user);
     }
 
+    @Override
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
+    @Override
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
+    @Override
     public Security createSecurity(Security security) {
-        return securityRepository.save(security);
+        return securityRepository.saveAndFlush(security);
     }
 
+    @Override
     public Security findSecurityById(Long id) {
         return securityRepository.findById(id).orElse(null);
     }
 
+    @Override
     public Security findSecurityByName(String name) {
         return securityRepository.findByName(name);
     }
 
+    @Override
     public Order createOrder(Order order) {
         return orderRepository.save(order);
     }
 
-    public Trade createTrade(Trade trade) {
+    @Override
+    public Order getOrderById(Long orderId) {
+        return orderRepository.findById(orderId).orElse(null);
+    }
+
+    @Override
+    public Order getOrderByType(String orderType) {
+        return orderRepository.findOrderByType(orderType);
+    }
+
+    @Override
+    public Order getOrderBySecurity(Security security) {
+        return orderRepository.findOrderBySecurity(security);
+    }
+
+    @Override
+    public Trade createOrder(Trade trade) {
         return tradeRepository.save(trade);
     }
 
+    @Override
+    public Trade getTradeById(Long tradeId) {
+        return tradeRepository.findById(tradeId).orElse(null);
+    }
 
+    @Override
+    public Trade getTradeByOrder(Order order) {
+        return order.getType().equals(ORDER_TYPE_BUY) ?
+                tradeRepository.findByBuyOrder(order) :
+                tradeRepository.findBySellOrder(order);
+    }
 }

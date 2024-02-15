@@ -13,12 +13,26 @@ Feature: Rest feature
   Scenario: create user via Rest API
     Given a user with "rest" username exists via rest
     When the client requests GET users lastCreatedId
-    Then the response status code should be 200
+    Then the latest user response status code should be 200
     And the response should contain user "rest" username
 
   @API
   Scenario: test data are not dependant on other tests
-    Given a user with "rest" username exists via rest
+    Given a user with "rest" username exists
     When the client requests GET users lastCreatedId
-    Then the response status code should be 200
+    Then the latest user response status code should be 200
     And the response should contain user "rest" username
+
+  @API
+  Scenario: Create security via repo
+    Given security with "security" name exists
+    When the client requests GET security lastCreatedId
+    Then the latest security response status code should be 200
+    And the response should contain security "rest" name
+
+  @API
+  Scenario: Create security via rest
+    Given security with "security" name exists via rest
+    When the client requests GET security lastCreatedId
+    Then the latest security response status code should be 200
+    And the response should contain security "rest" name
