@@ -10,9 +10,10 @@ import org.assertj.core.api.SoftAssertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import tse.api.demo.helpers.OrderHelper;
+import tse.api.demo.helpers.RestHelper;
 import tse.api.demo.helpers.SecurityHelper;
 import tse.api.demo.helpers.UserHelper;
 import tse.api.demo.model.Order;
@@ -23,8 +24,6 @@ import tse.api.demo.service.v2.ExchangeService;
 import tse.api.demo.steps.config.CucumberSpringConfiguration;
 import tse.api.demo.steps.config.TestConfig;
 import tse.api.demo.utils.TestContext;
-
-import java.util.Collections;
 
 @SpringBootTest(classes = TestConfig.class)
 @ComponentScan(basePackages = {"tse.api.demo"})
@@ -44,7 +43,7 @@ public class RestSteps extends CucumberSpringConfiguration {
     @Autowired
     private ExchangeService service;
     @Autowired
-    RestTemplate restTemplate;
+    RestHelper restHelper;
     private ResponseEntity<User> userResponse;
     private ResponseEntity<Security> secResponse;
     private ResponseEntity<Order> orderResponse;
@@ -99,26 +98,13 @@ public class RestSteps extends CucumberSpringConfiguration {
 
     @When("the client requests GET users lastCreatedId")
     public void theClientRequestsGetUserById() {
-        String url = String.format("%s/users/%s", context.getBaseUrl(), context.getLatestModel().getUser().getId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        userResponse = restTemplate.getForEntity(url, User.class, entity);
+        userResponse = restHelper.executeGetUser(context.getLatestModel().getUser().getId());
     }
 
     @Given("a user with {string} username exists via rest")
     public void aUserWithUsernameExistsViaRest(String username) {
         User user = userHelper.formUser(String.format("%s%s", username, context.getSalt()));
-        String createUserUrl = "http://localhost:8080" + "/users";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<User> requestEntity = new HttpEntity<>(user, headers);
-
-        userResponse = restTemplate.postForEntity(createUserUrl, requestEntity, User.class);
-
+        userResponse = restHelper.executePostUsers(user);
         context.getLatestModel().setUser(userResponse.getBody());
     }
 
@@ -129,12 +115,7 @@ public class RestSteps extends CucumberSpringConfiguration {
 
     @When("the client requests GET security lastCreatedId")
     public void theClientRequestsGETSecurityLastCreatedId() {
-        String url = String.format("%s/securities/%s", context.getBaseUrl(), context.getLatestModel().getSecurity().getId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        secResponse = restTemplate.getForEntity(url, Security.class, entity);
+        secResponse = restHelper.executeGetSecurity(context.getLatestModel().getSecurity().getId());
     }
 
     @And("the response should contain security {string} name")
@@ -148,15 +129,7 @@ public class RestSteps extends CucumberSpringConfiguration {
     @Given("security with {string} name exists via rest")
     public void securityWithNameExistsViaRest(String name) {
         Security security = securityHelper.formSecurity(String.format("%s%s", name, context.getSalt()));
-        String createUserUrl = "http://localhost:8080" + "/securities";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Security> requestEntity = new HttpEntity<>(security, headers);
-
-        secResponse = restTemplate.postForEntity(createUserUrl, requestEntity, Security.class);
-
+        secResponse = restHelper.executePostSecurities(security);
         context.getLatestModel().setSecurity(secResponse.getBody());
     }
 }
