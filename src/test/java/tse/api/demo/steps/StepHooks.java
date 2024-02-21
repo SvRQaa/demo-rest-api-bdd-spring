@@ -12,13 +12,15 @@ public class StepHooks {
     @Getter
     private static final Logger log = LoggerFactory.getLogger(CucumberSpringConfiguration.class);
 
+//    private final PicoContainer picoContainer; ??? //todo dependency injection to steps file for global assertAll()
+
     @Before
     public void setUp() {
         log.info("rest steps global before test hook, i will manage precondition as alternative to Background");
     }
 
-    @After
-    public void tearDown() {
-        log.info("rest steps global after test hook, i will cleanup after test");
-    }
+//    @After
+//    public void tearDown() {
+//        log.info("rest steps global after test hook, i will cleanup after test");
+//    }
 }

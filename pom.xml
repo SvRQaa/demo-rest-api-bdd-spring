@@ -83,6 +83,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-junit</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
 			<version>3.24.2</version>
@@ -113,13 +119,13 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.8.2</version>
+			<version>5.10.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.8.2</version>
+			<version>5.10.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -157,7 +163,7 @@
 					<generatedHtmlReportDirectory>${project.build.directory}/generated-report
 					</generatedHtmlReportDirectory>
 					<customParameters>
-						<_Text>This report shows the results of acceptance tests for Hello and GoodBye
+						<_Text>Api Demo Test Report
 						</_Text>
 					</customParameters>
 				</configuration>

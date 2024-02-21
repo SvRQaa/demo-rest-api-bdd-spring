@@ -1,5 +1,6 @@
 package tse.api.demo.steps;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -7,6 +8,8 @@ import io.cucumber.java.en.When;
 import lombok.Getter;
 import lombok.Setter;
 import org.assertj.core.api.SoftAssertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -48,6 +51,13 @@ public class RestSteps extends CucumberSpringConfiguration {
     private ResponseEntity<Security> secResponse;
     private ResponseEntity<Order> orderResponse;
     private ResponseEntity<Trade> tradeResponse;
+    private static final Logger log = LoggerFactory.getLogger(RestSteps.class);
+
+    @After
+    public void tearDown() {
+        log.info("rest steps global after test hook, i will cleanup after test");
+        softAssertions.assertAll(); //todo picocontainer dependency ???
+    }
 
     @Given("rest one security {string} and two users {string} and {string} exist")
     public void restOneSecurityAndTwoUsersAndExist(String securityName, String username1, String username2) {
