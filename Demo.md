@@ -19,8 +19,7 @@
 
 
 ### Test infrastructure highlights:
-
->runners
+### Runners
 
 - simple classes to mass configure each Cucumber test.
 - Each Runner is the entry point for the test with its unique configuration.
@@ -30,7 +29,7 @@
 - Every runner is pointed to all features.
 - You must control the scope using TAGS.
 
-### steps
+### Steps
 scenario step definition per context
 - Steps - general steps for direct usage of the Entity repositories
 - RestSteps - same but the Entities are manager using the rest endpoints
