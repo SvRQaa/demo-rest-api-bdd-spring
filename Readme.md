@@ -18,6 +18,9 @@ drop all and start application
 > ./mvnw clean spring-boot:run
 > ./mvnw verify
 
+Additional option to run is to have 
+> ./mvnw test -Dsurefire.includeJUnit5Engines=cucumber -Dcucumber.plugin="pretty" -Dcucumber.plugin="json:target/cucumber-report/cucumber.json" -Dcucumber.plugin="html:target/cucumber-report/cucumber.html" -Dcucumber.features=src/test/resources/tse/api/demo/feature/trade.feature
+
 html report location
 
 Cucumber Report:

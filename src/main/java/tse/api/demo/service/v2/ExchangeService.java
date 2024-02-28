@@ -2,8 +2,6 @@ package tse.api.demo.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.Setter;
-import org.assertj.core.api.SoftAssertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +19,12 @@ import tse.api.demo.service.interfaces.OrderRestService;
 import tse.api.demo.service.interfaces.SecurityRestService;
 import tse.api.demo.service.interfaces.TradeRestService;
 import tse.api.demo.service.interfaces.UserRestService;
-import tse.api.demo.utils.TestContext;
 
 import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_BUY;
 
 @Service
 @ComponentScan(basePackages = {"tse.api.demo"})
+@Getter
 public class ExchangeService implements SecurityRestService, UserRestService, OrderRestService, TradeRestService {
     private static final Logger log = LoggerFactory.getLogger(ExchangeService.class);
     private final UserRepository userRepository;
@@ -34,21 +32,14 @@ public class ExchangeService implements SecurityRestService, UserRestService, Or
     private final TradeRepository tradeRepository;
     private final OrderRepository orderRepository;
     private ObjectMapper mapper = new ObjectMapper();
-    @Getter
-    private SoftAssertions softAssertions = new SoftAssertions();
-    @Getter
-    @Setter
-    private TestContext context;
 
     @Autowired
     public ExchangeService(UserRepository userRepository, SecurityRepository securityRepository,
-                           TradeRepository tradeRepository, OrderRepository orderRepository,
-                           TestContext context) {
+                           TradeRepository tradeRepository, OrderRepository orderRepository) {
         this.userRepository = userRepository;
         this.securityRepository = securityRepository;
         this.tradeRepository = tradeRepository;
         this.orderRepository = orderRepository;
-        this.context = context;
     }
 
     @Override

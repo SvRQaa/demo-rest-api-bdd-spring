@@ -3,7 +3,6 @@ package tse.api.demo.service.v1;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.assertj.core.api.SoftAssertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_BUY;
 import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_SELL;
 
@@ -38,8 +38,6 @@ public class ExchangeServiceTestHelper {
     private final TradeRepository tradeRepository;
     private final OrderRepository orderRepository;
     private ObjectMapper mapper = new ObjectMapper();
-    @Getter
-    private SoftAssertions softAssertions = new SoftAssertions();
     @Getter
     @Setter
     private TestContext context;
@@ -227,9 +225,8 @@ public class ExchangeServiceTestHelper {
 
                     Trade actualTrade = tradeRepository.findBySellOrder(context.getLatestModel().getSellOrder());
 
-                    softAssertions.assertThat(actualTrade.getPrice()).isEqualTo(price);
-                    softAssertions.assertThat(actualTrade.getQuantity()).isEqualTo(quantity);
-                    softAssertions.assertAll();
+                    assertThat(actualTrade.getPrice()).isEqualTo(price);
+                    assertThat(actualTrade.getQuantity()).isEqualTo(quantity);
                 } else {
                     log.info("no trade, price is not ok\n buy.price: " + buyOrder.getPrice() + "\n" +
                             "sell.price: " + sellOrder.getPrice());

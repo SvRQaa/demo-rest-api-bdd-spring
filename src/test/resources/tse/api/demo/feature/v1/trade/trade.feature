@@ -1,4 +1,5 @@
-@Smoke
+@Trade1
+@TradeAll
 Feature: Trade feature
 
   Background: regenerate
@@ -11,10 +12,10 @@ Feature: Trade feature
     Then a trade occurs with the price of 100 and quantity of 50
 
   Scenario: buy order remain open after trade
-    Given one security "WSB" and two users "Diamond3" and "Paper" exist
-    When user "Diamond" puts a buy order for security "WSB" with a price of 100 and quantity of 50
+    Given one security "WSB" and two users "Diamond" and "Paper" exist
+    When user "Diamond" puts a buy order for security "WSB" with a price of 100 and quantity of 80
     And user "Paper" puts a sell order for security "WSB" with a price of 90 and a quantity of 70
-    Then a trade occurs with the price of 90 and quantity of 50
+    Then a trade occurs with the price of 90 and quantity of 70
     And after a trade buy order still open
 
   Scenario: no buy order price coverage

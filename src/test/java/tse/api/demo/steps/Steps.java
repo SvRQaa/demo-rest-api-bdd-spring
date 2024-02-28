@@ -4,11 +4,10 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import lombok.Getter;
-import org.assertj.core.api.SoftAssertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import tse.api.demo.dependency.ScenarioScoped;
 import tse.api.demo.helpers.OrderHelper;
 import tse.api.demo.model.Order;
 import tse.api.demo.model.Trade;
@@ -16,6 +15,7 @@ import tse.api.demo.service.v1.ExchangeServiceTestHelper;
 import tse.api.demo.steps.config.CucumberSpringConfiguration;
 import tse.api.demo.steps.config.TestConfig;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_BUY;
 import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_SELL;
 
@@ -27,11 +27,17 @@ public class Steps extends CucumberSpringConfiguration {
     ExchangeServiceTestHelper exchangeServiceTestHelper; //v1 implementation
     @Autowired
     OrderHelper orderHelper;
-    @Getter
-    private SoftAssertions softAssertions = new SoftAssertions();
+
+    private ScenarioScoped scenarioScoped;
+
+    @Autowired
+    private Steps(ScenarioScoped scenarioScoped) {
+        this.scenarioScoped = scenarioScoped;
+    }
 
     @Given("one security {string} and two users {string} and {string} exist")
     public void oneSecurityAndTwoUsersAndExist(String secName1, String user1, String user2) {
+        scenarioScoped.getStatus();
         exchangeServiceTestHelper.addUser(user1);
         exchangeServiceTestHelper.addUser(user2);
         exchangeServiceTestHelper.addSecurity(secName1);
@@ -77,8 +83,8 @@ public class Steps extends CucumberSpringConfiguration {
     public void buyOrderStillOpen() {
         Order buyOrder = exchangeServiceTestHelper.getContext().getLatestModel().getBuyOrder();
         Trade trade = exchangeServiceTestHelper.findTradeByBuyOrder(buyOrder);
-        exchangeServiceTestHelper.getSoftAssertions().assertThat(trade.getBuyOrder()).isEqualTo(buyOrder);
-        exchangeServiceTestHelper.getSoftAssertions().assertThat(buyOrder.isFulfilled()).isFalse();
-        exchangeServiceTestHelper.getSoftAssertions().assertThat(buyOrder.getQuantity()).isGreaterThan(0);
+        assertThat(trade.getBuyOrder().isFulfilled()).isEqualTo(buyOrder.isFulfilled());
+        assertThat(buyOrder.isFulfilled()).isFalse();
+        assertThat(buyOrder.getQuantity()).isGreaterThan(0);
     }
 }

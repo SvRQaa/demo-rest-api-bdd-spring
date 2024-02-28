@@ -1,13 +1,11 @@
 package tse.api.demo.steps;
 
-import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.Getter;
 import lombok.Setter;
-import org.assertj.core.api.SoftAssertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import tse.api.demo.dependency.ScenarioScoped;
 import tse.api.demo.helpers.OrderHelper;
 import tse.api.demo.helpers.RestHelper;
 import tse.api.demo.helpers.SecurityHelper;
@@ -28,36 +27,33 @@ import tse.api.demo.steps.config.CucumberSpringConfiguration;
 import tse.api.demo.steps.config.TestConfig;
 import tse.api.demo.utils.TestContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest(classes = TestConfig.class)
 @ComponentScan(basePackages = {"tse.api.demo"})
 public class RestSteps extends CucumberSpringConfiguration {
 
-    @Getter
-    private SoftAssertions softAssertions = new SoftAssertions();
+    @Autowired
+    private ScenarioScoped scenarioScoped;
     @Getter
     @Setter
-    private TestContext context = new TestContext();
     @Autowired
-    UserHelper userHelper;
+    private TestContext context;
     @Autowired
-    SecurityHelper securityHelper;
+    private UserHelper userHelper;
     @Autowired
-    OrderHelper orderHelper;
+    private SecurityHelper securityHelper;
+    @Autowired
+    private OrderHelper orderHelper;
     @Autowired
     private ExchangeService service;
     @Autowired
-    RestHelper restHelper;
+    private RestHelper restHelper;
     private ResponseEntity<User> userResponse;
     private ResponseEntity<Security> secResponse;
     private ResponseEntity<Order> orderResponse;
     private ResponseEntity<Trade> tradeResponse;
     private static final Logger log = LoggerFactory.getLogger(RestSteps.class);
-
-    @After
-    public void tearDown() {
-        log.info("rest steps global after test hook, i will cleanup after test");
-        softAssertions.assertAll(); //todo picocontainer dependency ???
-    }
 
     @Given("rest one security {string} and two users {string} and {string} exist")
     public void restOneSecurityAndTwoUsersAndExist(String securityName, String username1, String username2) {
@@ -90,20 +86,20 @@ public class RestSteps extends CucumberSpringConfiguration {
 
     @Then("the latest user response status code should be {int}")
     public void theLatestUserResponseStatusCodeShouldBe(int expectedStatusCode) {
-        softAssertions.assertThat(HttpStatusCode.valueOf(expectedStatusCode)).isEqualTo(userResponse.getStatusCode());
+        assertThat(HttpStatusCode.valueOf(expectedStatusCode)).isEqualTo(userResponse.getStatusCode());
     }
 
     @Then("the latest security response status code should be {int}")
     public void theLatestSecurityResponseStatusCodeShouldBe(int expectedStatusCode) {
-        softAssertions.assertThat(HttpStatusCode.valueOf(expectedStatusCode)).isEqualTo(secResponse.getStatusCode());
+        assertThat(HttpStatusCode.valueOf(expectedStatusCode)).isEqualTo(secResponse.getStatusCode());
     }
 
     @Then("the response should contain user {string} username")
     public void theResponseShouldContainUserDetails(String username) {
         String expectedUsername = String.format("%s%s", username, context.getSalt());
         User user = userResponse.getBody();
-        softAssertions.assertThat(user).isNotNull();
-        softAssertions.assertThat(user.getUsername()).isEqualTo(expectedUsername);
+        assertThat(user).isNotNull();
+        assertThat(user.getUsername()).isEqualTo(expectedUsername);
     }
 
     @When("the client requests GET users lastCreatedId")
@@ -119,7 +115,7 @@ public class RestSteps extends CucumberSpringConfiguration {
     }
 
     @Given("security with {string} name exists")
-    public void securityWithStringNameExistsViaRest(String name) {
+    public void securityWithStringNameExists(String name) {
         addSecurity(name);
     }
 
@@ -132,8 +128,8 @@ public class RestSteps extends CucumberSpringConfiguration {
     public void theResponseShouldContainSecurityName(String name) {
         String expectedUsername = String.format("%s%s", name, context.getSalt());
         Security security = secResponse.getBody();
-        softAssertions.assertThat(security).isNotNull();
-        softAssertions.assertThat(security.getName()).isEqualTo(expectedUsername);
+        assertThat(security).isNotNull();
+        assertThat(security.getName()).isEqualTo(expectedUsername);
     }
 
     @Given("security with {string} name exists via rest")
@@ -141,5 +137,22 @@ public class RestSteps extends CucumberSpringConfiguration {
         Security security = securityHelper.formSecurity(String.format("%s%s", name, context.getSalt()));
         secResponse = restHelper.executePostSecurities(security);
         context.getLatestModel().setSecurity(secResponse.getBody());
+    }
+
+    @Then("check onCall value is true in RestSteps")
+    public void checkOnCallValueIsTrueInRestSteps() {
+        log.info("assert OnCall isTrue");
+        assertThat(scenarioScoped.isOnCall()).isTrue();
+    }
+
+    @Then("check onCall value is false in RestSteps")
+    public void checkOnCallValueIsFalseInRestSteps() {
+        log.info("assert OnCall isFalse");
+        assertThat(scenarioScoped.isOnCall()).isFalse();
+    }
+
+    @Given("regenerate context for rest")
+    public void regenerateContextForRest() {
+        context.regenerateForRest();
     }
 }
