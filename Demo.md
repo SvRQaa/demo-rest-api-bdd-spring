@@ -66,3 +66,9 @@ docker container + docker-compose.yml
 report aggregation to build test trends
 
 extend reporting with more metadata to improve traceability
+
+## Additional features
+### Swagger
+Run the DemoApplication.
+Access Swagger UI @ http://localhost:8080/swagger-ui/index.html
+
