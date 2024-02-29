@@ -182,6 +182,41 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.11</version>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.30</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -198,16 +233,8 @@
 			</plugin>
 			<plugin>
 				<groupId>com.trivago.rta</groupId>
-				<artifactId>cluecumber-report-plugin</artifactId>
-				<version>2.7.0</version>
-				<configuration>
-					<sourceJsonReportDirectory>${project.build.directory}/cucumber-report</sourceJsonReportDirectory>
-					<generatedHtmlReportDirectory>${project.build.directory}/generated-report</generatedHtmlReportDirectory>
-					<customParameters>
-						<_Text>Api Demo Test Report
-						</_Text>
-					</customParameters>
-				</configuration>
+				<artifactId>cluecumber-maven</artifactId>
+				<version>3.5.1</version>
 				<executions>
 					<execution>
 						<id>report</id>
@@ -217,6 +244,11 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<sourceJsonReportDirectory>${project.build.directory}/cucumber-report</sourceJsonReportDirectory>
+					<generatedHtmlReportDirectory>${project.build.directory}/generated-report
+					</generatedHtmlReportDirectory>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

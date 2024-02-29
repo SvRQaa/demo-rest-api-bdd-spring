@@ -72,3 +72,8 @@ extend reporting with more metadata to improve traceability
 Run the DemoApplication.
 Access Swagger UI @ http://localhost:8080/swagger-ui/index.html
 
+### Code Coverage report
+Run the DemoApplication
+> mvn verify
+
+Access http://localhost:63342/demo/target/site/jacoco/index.html
