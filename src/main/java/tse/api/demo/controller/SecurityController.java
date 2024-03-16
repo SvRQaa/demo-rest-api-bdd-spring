@@ -36,6 +36,14 @@ public class SecurityController {
         return assembler.toModel(security);
     }
 
+    @GetMapping("/securities/search/{secName}")
+    public EntityModel<Security> one(@PathVariable String secName) {
+
+        Security security = repository.findByName(secName);
+
+        return assembler.toModel(security);
+    }
+
     @GetMapping("/securities")
     public CollectionModel<EntityModel<Security>> all() {
 
@@ -49,7 +57,7 @@ public class SecurityController {
     @PostMapping("/securities")
     ResponseEntity<?> newSecurity(@RequestBody Security newSecurity) {
 
-        EntityModel<Security> entityModel = assembler.toModel(repository.save(newSecurity));
+        EntityModel<Security> entityModel = assembler.toModel(repository.saveAndFlush(newSecurity));
 
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -62,11 +70,11 @@ public class SecurityController {
         Security updatedSecurity = repository.findById(id)
                 .map(security -> {
                     security.setName(newSecurity.getName());
-                    return repository.save(security);
+                    return repository.saveAndFlush(security);
                 })
                 .orElseGet(() -> {
                     newSecurity.setId(id);
-                    return repository.save(newSecurity);
+                    return repository.saveAndFlush(newSecurity);
                 });
 
         EntityModel<Security> entityModel = assembler.toModel(updatedSecurity);

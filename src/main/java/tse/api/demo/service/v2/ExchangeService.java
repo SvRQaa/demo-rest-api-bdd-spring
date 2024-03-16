@@ -31,7 +31,7 @@ public class ExchangeService implements SecurityRestService, UserRestService, Or
     private final SecurityRepository securityRepository;
     private final TradeRepository tradeRepository;
     private final OrderRepository orderRepository;
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     public ExchangeService(UserRepository userRepository, SecurityRepository securityRepository,
@@ -44,7 +44,7 @@ public class ExchangeService implements SecurityRestService, UserRestService, Or
 
     @Override
     public User createUser(User user) {
-        return userRepository.save(user);
+        return userRepository.saveAndFlush(user);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ExchangeService implements SecurityRestService, UserRestService, Or
 
     @Override
     public Order createOrder(Order order) {
-        return orderRepository.save(order);
+        return orderRepository.saveAndFlush(order);
     }
 
     @Override
@@ -93,8 +93,8 @@ public class ExchangeService implements SecurityRestService, UserRestService, Or
     }
 
     @Override
-    public Trade createOrder(Trade trade) {
-        return tradeRepository.save(trade);
+    public Trade createTrade(Trade trade) {
+        return tradeRepository.saveAndFlush(trade);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class OrderController {
     @PostMapping("/orders")
     ResponseEntity<?> newOrder(@RequestBody Order newOrder) {
 
-        EntityModel<Order> entityModel = assembler.toModel(repository.save(newOrder));
+        EntityModel<Order> entityModel = assembler.toModel(repository.saveAndFlush(newOrder));
 
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -66,11 +66,11 @@ public class OrderController {
                     order.setPrice(newOrder.getPrice());
                     order.setQuantity(newOrder.getQuantity());
                     order.setType(newOrder.getType());
-                    return repository.save(order);
+                    return repository.saveAndFlush(order);
                 })
                 .orElseGet(() -> {
                     newOrder.setId(id);
-                    return repository.save(newOrder);
+                    return repository.saveAndFlush(newOrder);
                 });
 
         EntityModel<Order> entityModel = assembler.toModel(updatedOrder);

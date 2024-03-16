@@ -18,7 +18,7 @@ import tse.api.demo.model.LastSavedModel;
 @Data
 public class TestContext {
     private LastSavedModel latestModel = new LastSavedModel();
-    private String salt = "not set yet";// = String.format("_%s", RandomStringUtils.randomAlphabetic(5));
+    private String salt = "not set yet";
     private String baseUrl = "http://localhost:8080";
 
     private static final Logger log = LoggerFactory.getLogger(TestContext.class);

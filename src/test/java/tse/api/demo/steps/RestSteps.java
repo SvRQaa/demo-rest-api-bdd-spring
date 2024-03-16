@@ -28,6 +28,8 @@ import tse.api.demo.steps.config.TestConfig;
 import tse.api.demo.utils.TestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_BUY;
+import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_SELL;
 
 @SpringBootTest(classes = TestConfig.class)
 @ComponentScan(basePackages = {"tse.api.demo"})
@@ -51,7 +53,8 @@ public class RestSteps extends CucumberSpringConfiguration {
     private RestHelper restHelper;
     private ResponseEntity<User> userResponse;
     private ResponseEntity<Security> secResponse;
-    private ResponseEntity<Order> orderResponse;
+    private ResponseEntity<Order> buyOrderResponse;
+    private ResponseEntity<Order> sellOrderResponse;
     private ResponseEntity<Trade> tradeResponse;
     private static final Logger log = LoggerFactory.getLogger(RestSteps.class);
 
@@ -104,7 +107,7 @@ public class RestSteps extends CucumberSpringConfiguration {
 
     @When("the client requests GET users lastCreatedId")
     public void theClientRequestsGetUserById() {
-        userResponse = restHelper.executeGetUser(context.getLatestModel().getUser().getId());
+        userResponse = restHelper.executeGetUserById(context.getLatestModel().getUser().getId());
     }
 
     @Given("a user with {string} username exists via rest")
@@ -154,5 +157,58 @@ public class RestSteps extends CucumberSpringConfiguration {
     @Given("regenerate context for rest")
     public void regenerateContextForRest() {
         context.regenerateForRest();
+    }
+
+    @When("user {string} puts a {string} order for security {string} with a price of {int} and a quantity of {int} via rest")
+    public void userPutsABuyOrderForSecurityWithAPriceOfAndQuantityOfViaRest(String username, String orderType, String secName, int price, int quantity) {
+        String salt = context.getSalt();
+        User user = restHelper.executeGetUserByUsername(String.format("%s%s", username, salt)).getBody();
+        Security security = restHelper.executeGetSecurityBySecurityName(String.format("%s%s", secName, salt)).getBody();
+        String type = orderType.equalsIgnoreCase("buy") ? ORDER_TYPE_BUY : ORDER_TYPE_SELL;
+        Order formedOrder = orderHelper.formOrder(user, security, price, quantity, type);
+
+        if ("buy".equalsIgnoreCase(orderType)) {
+            buyOrderResponse = restHelper.executePostOrder(formedOrder);
+            context.getLatestModel().setBuyOrder(buyOrderResponse.getBody());
+        } else if ("sell".equalsIgnoreCase(orderType)) {
+            sellOrderResponse = restHelper.executePostOrder(formedOrder);
+            context.getLatestModel().setSellOrder(sellOrderResponse.getBody());
+        }
+    }
+
+    @When("trigger make a trade job")
+    public void triggerMakeATradeJob() {
+        tradeResponse = restHelper.executePostTradeJob();
+        context.getLatestModel().setTrade(tradeResponse.getBody());
+    }
+
+    @Then("a trade occurs with the price of {int} and quantity of {int} via rest")
+    public void aTradeOccursWithThePriceOfAndQuantityOfViaRest(int price, int quantity) {
+        Trade trade = context.getLatestModel().getTrade();
+
+        assertThat(trade.getPrice()).as("expected trade price").isEqualTo(price);
+        assertThat(trade.getQuantity()).as("expected trade quantity").isEqualTo(quantity);
+    }
+
+    @And("User GET has {string} name")
+    public void userGetByNameReturnTheRecord(String username) {
+        User existingUser = context.getLatestModel().getUser();
+        String formattedUsername = String.format("%s%s", username, context.getSalt());
+
+        userResponse = restHelper.executeGetUserByUsername(formattedUsername);
+        User actualUser = userResponse.getBody();
+
+        assertThat(actualUser).isEqualTo(existingUser);
+    }
+
+    @And("Security GET has {string} name")
+    public void securityGETHasName(String secName) {
+        Security existingSecurity = context.getLatestModel().getSecurity();
+        String formattedSecName = String.format("%s%s", secName, context.getSalt());
+
+        secResponse = restHelper.executeGetSecurityBySecurityName(formattedSecName);
+        Security actualSecurity = secResponse.getBody();
+
+        assertThat(existingSecurity).isEqualTo(actualSecurity);
     }
 }

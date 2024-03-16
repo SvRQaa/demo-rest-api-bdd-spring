@@ -4,7 +4,7 @@ import tse.api.demo.model.Order;
 import tse.api.demo.model.Trade;
 
 public interface TradeRestService {
-    Trade createOrder(Trade trade);
+    Trade createTrade(Trade trade);
     Trade getTradeById(Long tradeId);
     Trade getTradeByOrder(Order order);
 }
