@@ -3,7 +3,6 @@ package tse.api.demo.service.v1;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.assertj.core.api.SoftAssertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_BUY;
 import static tse.api.demo.utils.constants.ExCon.ORDER_TYPE_SELL;
 
@@ -38,8 +38,6 @@ public class ExchangeServiceTestHelper {
     private final TradeRepository tradeRepository;
     private final OrderRepository orderRepository;
     private ObjectMapper mapper = new ObjectMapper();
-    @Getter
-    private SoftAssertions softAssertions = new SoftAssertions();
     @Getter
     @Setter
     private TestContext context;
@@ -77,7 +75,7 @@ public class ExchangeServiceTestHelper {
     public void addOrder(Order order) {
         log.info("addOrder : " + order);
 
-        Order savedOrder = orderRepository.save(order);
+        Order savedOrder = orderRepository.saveAndFlush(order);
         if (savedOrder.getType().equals(ORDER_TYPE_SELL)) {
             context.getLatestModel().setSellOrder(savedOrder);
         } else if (savedOrder.getType().equals(ORDER_TYPE_BUY)) {
@@ -89,14 +87,14 @@ public class ExchangeServiceTestHelper {
         String testUsername = String.format("%s%s", username, context.getSalt());
         User user = new User(testUsername);
         log.info("addUser : " + user);
-        context.getLatestModel().setUser(userRepository.save(user));
+        context.getLatestModel().setUser(userRepository.saveAndFlush(user));
     }
 
     public void addSecurity(String name) {
         String testName = String.format("%s%s", name, context.getSalt());
         Security security = new Security(testName);
         log.info("addSecurity : " + security);
-        context.getLatestModel().setSecurity(securityRepository.save(security));
+        context.getLatestModel().setSecurity(securityRepository.saveAndFlush(security));
     }
 
     @Deprecated
@@ -116,7 +114,7 @@ public class ExchangeServiceTestHelper {
 
         log.info("addBuyOrder : " + buyOrder);
 
-        context.getLatestModel().setBuyOrder(orderRepository.save(buyOrder));
+        context.getLatestModel().setBuyOrder(orderRepository.saveAndFlush(buyOrder));
     }
 
     @Deprecated
@@ -136,7 +134,7 @@ public class ExchangeServiceTestHelper {
 
         log.info("addSellOrder : " + sellOrder);
 
-        context.getLatestModel().setSellOrder(orderRepository.save(sellOrder));
+        context.getLatestModel().setSellOrder(orderRepository.saveAndFlush(sellOrder));
     }
 
     public User findUserByUsername(String username) {
@@ -216,20 +214,19 @@ public class ExchangeServiceTestHelper {
                     trade.setBuyOrder(buyOrder);
                     trade.setSellOrder(sellOrder);
 
-                    orderRepository.save(sellOrder);
+                    orderRepository.saveAndFlush(sellOrder);
                     log.info("Save sellOrder: " + sellOrder);
-                    orderRepository.save(buyOrder);
+                    orderRepository.saveAndFlush(buyOrder);
                     log.info("Save buyOrder: " + buyOrder);
 
-                    Trade savedTrade = tradeRepository.save(trade);
+                    Trade savedTrade = tradeRepository.saveAndFlush(trade);
                     context.getLatestModel().setTrade(savedTrade);
                     log.info("Save trade: " + savedTrade);
 
                     Trade actualTrade = tradeRepository.findBySellOrder(context.getLatestModel().getSellOrder());
 
-                    softAssertions.assertThat(actualTrade.getPrice()).isEqualTo(price);
-                    softAssertions.assertThat(actualTrade.getQuantity()).isEqualTo(quantity);
-                    softAssertions.assertAll();
+                    assertThat(actualTrade.getPrice()).isEqualTo(price);
+                    assertThat(actualTrade.getQuantity()).isEqualTo(quantity);
                 } else {
                     log.info("no trade, price is not ok\n buy.price: " + buyOrder.getPrice() + "\n" +
                             "sell.price: " + sellOrder.getPrice());
